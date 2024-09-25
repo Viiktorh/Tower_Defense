@@ -13,6 +13,16 @@ class ATower_DefenseGameMode : public AGameModeBase
 
 public:
 	ATower_DefenseGameMode();
+
+	UPROPERTY(EditAnywhere, Category = "Spawn")
+	TSubclassOf<class AEnemySpawn>
+		EnemyBlueprint;
+
+	float EnemyTimer;
+
+	virtual void Tick(float DeltaTime) override;
+
+	virtual void BeginPlay() override;
 };
 
 
