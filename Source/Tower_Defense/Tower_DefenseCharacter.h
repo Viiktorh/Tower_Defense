@@ -44,9 +44,23 @@ class ATower_DefenseCharacter : public ACharacter
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* LookAction;
 
+	/** Fire weapon Action*/
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	class UInputAction* PushAction;
+
+	/** Fire weapon Function*/
+	UFUNCTION(BlueprintCallable, Category = "Weapon function")
+	void PushEnemy();
+
 public:
 	ATower_DefenseCharacter();
 	
+
+	/*
+	 * Expose Collision Channel to Unreal Editor
+	 */
+	UPROPERTY(EditAnywhere, Category = "Beam Collision")
+	TEnumAsByte<ECollisionChannel> TraceChannelProperty = ECC_Visibility;
 
 protected:
 

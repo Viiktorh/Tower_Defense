@@ -10,6 +10,7 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "InputActionValue.h"
+#include "DrawDebugHelpers.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
@@ -86,6 +87,10 @@ void ATower_DefenseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerI
 
 		// Looking
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &ATower_DefenseCharacter::Look);
+
+		// Shooting
+		EnhancedInputComponent->BindAction(PushAction, ETriggerEvent::Started, this, &ATower_DefenseCharacter::PushEnemy);
+		
 	}
 	else
 	{
@@ -126,5 +131,34 @@ void ATower_DefenseCharacter::Look(const FInputActionValue& Value)
 		// add yaw and pitch input to controller
 		AddControllerYawInput(LookAxisVector.X);
 		AddControllerPitchInput(LookAxisVector.Y);
+	}
+}
+
+void ATower_DefenseCharacter::PushEnemy()
+{
+	FHitResult OutHit;
+
+	AController* PlayerController = GetController();
+	//Determines where the Beam start and end locations are.
+	FRotator BeamRotation = FollowCamera->GetRelativeRotation();
+	FVector BeamStart = GetActorLocation();// + BeamRotation.RotateVector(GuntipOffset);
+	FVector ForwardVector = FollowCamera->GetForwardVector();
+	FVector BeamEnd = ((ForwardVector * 1800.f) + BeamStart);
+	//Initialize Collision parameters
+	FCollisionQueryParams CollisionParams;
+
+	DrawDebugLine(GetWorld(), BeamStart, BeamEnd, FColor::Red, false, 3.0f, 0, 1);
+
+	//Execute a LineTrace with OutHit as result
+	GetWorld()->LineTraceSingleByChannel(OutHit, BeamStart, BeamEnd, TraceChannelProperty, CollisionParams);
+
+	// If the trace hit something, bBlockingHit will be true,
+	// and its fields will be filled with detailed info about what was hit
+	if (OutHit.bBlockingHit && IsValid(OutHit.GetActor()))
+	{
+		if(OutHit.GetActor() != nullptr)
+		{
+			LaunchCharacter(ForwardVector * 300, false, true);
+		}
 	}
 }
