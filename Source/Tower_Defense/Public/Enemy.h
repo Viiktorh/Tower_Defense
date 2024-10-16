@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "Components/WidgetComponent.h"
 #include "Enemy.generated.h"
 
 class UBoxComponent;
@@ -45,4 +46,7 @@ public:
 
     UPROPERTY(EditAnywhere, Category = "Movement")
     AActor* MoveTarget = nullptr;
+
+    UPROPERTY(VisibleAnywhere, Category = "Components")
+    UWidgetComponent* HealthBarWidgetComponent;
 };
