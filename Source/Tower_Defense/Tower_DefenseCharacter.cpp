@@ -158,7 +158,12 @@ void ATower_DefenseCharacter::PushEnemy()
 	{
 		if(OutHit.GetActor() != nullptr)
 		{
-			LaunchCharacter(ForwardVector * 300, false, true);
+			UPrimitiveComponent* component = Cast<UPrimitiveComponent>(OutHit.GetActor()->GetRootComponent());
+			if (component != nullptr)
+			{
+				component->AddImpulseAtLocation(ForwardVector*500, BeamEnd);
+			}
+			OutHit.GetActor()->GetRootComponent()->AddLocalRotation(BeamRotation);
 		}
 	}
 }
