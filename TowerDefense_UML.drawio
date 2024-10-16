@@ -33,7 +33,7 @@
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
         <mxCell id="PW2wVgRJ4aBl7MUuCcuQ-7" value="AEnemy" style="swimlane;fontStyle=0;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeLast=0;collapsible=1;marginBottom=0;rounded=0;shadow=0;strokeWidth=1;" vertex="1" parent="WIyWlLk6GJQsqaUBKTNV-1">
-          <mxGeometry x="780" y="220" width="350" height="300" as="geometry">
+          <mxGeometry x="580" y="240" width="350" height="300" as="geometry">
             <mxRectangle x="340" y="380" width="170" height="26" as="alternateBounds" />
           </mxGeometry>
         </mxCell>
@@ -47,7 +47,7 @@
           <mxGeometry y="168" width="350" height="40" as="geometry" />
         </mxCell>
         <mxCell id="PW2wVgRJ4aBl7MUuCcuQ-11" value="&lt;b&gt;AActor&lt;/b&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="WIyWlLk6GJQsqaUBKTNV-1">
-          <mxGeometry x="910" y="110" width="90" height="30" as="geometry" />
+          <mxGeometry x="710" y="130" width="90" height="30" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>
