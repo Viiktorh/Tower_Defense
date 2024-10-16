@@ -2,6 +2,7 @@
 #include "Components/BoxComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Components/StaticMeshComponent.h"
+#include "UEnemyHealthBar.h"
 #include "Kismet/GameplayStatics.h"
 
 AEnemy::AEnemy()
@@ -12,11 +13,23 @@ AEnemy::AEnemy()
     MeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MeshComponent"));
     MeshComponent->SetupAttachment(RootComponent);
     Health = 100;
+
+    HealthBarWidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("HealthBarWidgetComponent"));
+    HealthBarWidgetComponent->SetupAttachment(RootComponent);
+    HealthBarWidgetComponent->SetWidgetSpace(EWidgetSpace::Screen);
+    HealthBarWidgetComponent->SetRelativeLocation(FVector(0, 0, 100));
 }
 
 void AEnemy::BeginPlay()
 {
     Super::BeginPlay();
+
+    UUserWidget* UserWidget = HealthBarWidgetComponent->GetUserWidgetObject();
+    UUEnemyHealthBar* EnemyHealthBar = Cast<UUEnemyHealthBar>(UserWidget);
+    if (EnemyHealthBar)
+    {
+        EnemyHealthBar->Health = static_cast<float>(Health) / 100.0f;
+    }
 }
 
 void AEnemy::Tick(float DeltaTime)
@@ -36,6 +49,14 @@ void AEnemy::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimi
 void AEnemy::ApplyDamage(int Damage)
 {
     Health -= Damage;
+
+    // Update health bar
+    UUserWidget* UserWidget = HealthBarWidgetComponent->GetUserWidgetObject();
+    UUEnemyHealthBar* EnemyHealthBar = Cast<UUEnemyHealthBar>(UserWidget);
+    if (EnemyHealthBar)
+    {
+        EnemyHealthBar->Health = static_cast<float>(Health) / 100.0f; // Assuming 100 is the max health
+    }
 
     if (Health <= 0)
     {
