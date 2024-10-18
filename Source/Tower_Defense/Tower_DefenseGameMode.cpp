@@ -4,7 +4,7 @@
 #include "Tower_DefenseCharacter.h"
 #include "UObject/ConstructorHelpers.h"
 #include "Kismet/GameplayStatics.h"
-#include "EnemySpawn.h"
+#include "Enemy.h"
 
 ATower_DefenseGameMode::ATower_DefenseGameMode()
 {
@@ -43,7 +43,7 @@ void ATower_DefenseGameMode::Tick(float DeltaTime)
 			enemyLocation.X += randomDistance;
 			enemyLocation.Y += randomDistance;
 
-			AEnemySpawn* enemy = world->SpawnActor<AEnemySpawn>(EnemyBlueprint, enemyLocation, FRotator::ZeroRotator);
+			AEnemy* enemy = world->SpawnActor<AEnemy>(EnemyBlueprint, enemyLocation, FRotator::ZeroRotator);
 		}
 	}
 
