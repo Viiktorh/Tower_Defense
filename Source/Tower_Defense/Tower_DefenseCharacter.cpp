@@ -12,7 +12,6 @@
 #include "InputActionValue.h"
 #include "DrawDebugHelpers.h"
 
-DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
 //////////////////////////////////////////////////////////////////////////
 // ATower_DefenseCharacter
