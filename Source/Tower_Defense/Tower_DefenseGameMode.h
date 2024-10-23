@@ -15,8 +15,7 @@ public:
 	ATower_DefenseGameMode();
 
 	UPROPERTY(EditAnywhere, Category = "Spawn")
-	TSubclassOf<class AEnemySpawn>
-		EnemyBlueprint;
+	TSubclassOf<class AEnemy> EnemyBlueprint;
 
 	float EnemyTimer;
 
