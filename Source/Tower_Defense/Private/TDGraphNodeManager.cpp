@@ -17,15 +17,15 @@ void ATDGraphNodeManager::BeginPlay()
 {
     Super::BeginPlay();
 
-    //if (Enemy)
-    //{
-    //    TArray<ATDGraphNode*> Path = FindShortestPath();
-    //    if (Path.Num() > 0)
-    //    {
-    //        Enemy->SetPath(Path);
-    //        Enemy->StartMoving();
-    //    }
-    //}
+    if (Enemy)
+    {
+        TArray<ATDGraphNode*> Path = FindShortestPath();
+        if (Path.Num() > 0)
+        {
+            Enemy->SetPath(Path);
+            Enemy->StartMoving();
+        }
+    }
 }
 
 TArray<ATDGraphNode*> ATDGraphNodeManager::FindShortestPath()

@@ -1,16 +1,17 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/Actor.h"
+#include "TDGraphNodeManager.h"
+#include "GameFramework/Character.h"
 #include "Components/WidgetComponent.h"
 #include "Enemy.generated.h"
 
-class UBoxComponent;
+class ATDGraphNode;
 class UProjectileMovementComponent;
 class UStaticMeshComponent;
 
 UCLASS()
-class TOWER_DEFENSE_API AEnemy : public AActor
+class TOWER_DEFENSE_API AEnemy : public ACharacter
 {
     GENERATED_BODY()
 
@@ -26,14 +27,18 @@ public:
     void DestroyEnemy();
     void MoveTowardsTarget(AActor* Target);
 
+
     UFUNCTION()
     void OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
 
-    UPROPERTY(VisibleAnywhere, Category = "Components")
-    UBoxComponent* BoxComponent;
+    UFUNCTION(BlueprintCallable)
+    void SetPath(const TArray<ATDGraphNode*> NewPath);
+
+    UFUNCTION()
+    void StartMoving();
 
     UPROPERTY(VisibleAnywhere, Category = "Components")
-    UStaticMeshComponent* MeshComponent;
+    USkeletalMeshComponent* MeshComponent;
 
     UPROPERTY(VisibleAnywhere, Category = "Movement")
     UProjectileMovementComponent* MovementComponent;
@@ -46,6 +51,18 @@ public:
 
     UPROPERTY(EditAnywhere, Category = "Movement")
     AActor* MoveTarget = nullptr;
+
+    UPROPERTY()
+    TArray<ATDGraphNode*> PathNodes;
+
+    UPROPERTY()
+    TArray<ATDGraphNodeManager*> AllNodes;
+
+    UPROPERTY(VisibleAnywhere, Category = "PathCharacter")
+    int32 CurrentNodeIndex;
+
+    UPROPERTY(VisibleAnywhere, Category = "PathCharacter")
+    bool bIsMoving;
 
     UPROPERTY(VisibleAnywhere, Category = "Components")
     UWidgetComponent* HealthBarWidgetComponent;

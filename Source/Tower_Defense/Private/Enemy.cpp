@@ -1,21 +1,27 @@
 #include "Enemy.h"
-#include "Components/BoxComponent.h"
+
+#include "TDGraphNode.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "UEnemyHealthBar.h"
 #include "Kismet/GameplayStatics.h"
+#include "Microsoft/AllowMicrosoftPlatformTypes.h"
 
 AEnemy::AEnemy()
 {
     PrimaryActorTick.bCanEverTick = true;
-    BoxComponent = CreateDefaultSubobject<UBoxComponent>(TEXT("BoxComponent"));
-    RootComponent = BoxComponent;
-    MeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MeshComponent"));
+    RootComponent = MeshComponent;
+    MeshComponent = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("MeshComponent"));
     MeshComponent->SetupAttachment(RootComponent);
     Health = 100;
 
+    //AI movement
+    CurrentNodeIndex = 0;
+    bIsMoving = false;
+
+    //Health Bar
     HealthBarWidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("HealthBarWidgetComponent"));
-    HealthBarWidgetComponent->SetupAttachment(RootComponent);
+    HealthBarWidgetComponent->SetupAttachment(MeshComponent);
     HealthBarWidgetComponent->SetWidgetSpace(EWidgetSpace::Screen);
     HealthBarWidgetComponent->SetRelativeLocation(FVector(0, 0, 100));
 }
@@ -35,15 +41,40 @@ void AEnemy::BeginPlay()
 void AEnemy::Tick(float DeltaTime)
 {
     Super::Tick(DeltaTime);
-    if (MoveTarget)
+    if (bIsMoving && PathNodes.Num() > 0 && CurrentNodeIndex < PathNodes.Num())
     {
-        MoveTowardsTarget(MoveTarget);
+        FVector TargetLocation = PathNodes[CurrentNodeIndex]->GetActorLocation();
+        FVector Direction = (TargetLocation - GetActorLocation()).GetSafeNormal();
+        FVector NewLocation = GetActorLocation() + Direction * MoveSpeed * DeltaTime;
+        
+        SetActorLocation(NewLocation);
+
+        if (FVector::Dist(GetActorLocation(), TargetLocation) < 100.0f)
+        {
+            CurrentNodeIndex++;
+
+            if (CurrentNodeIndex >= PathNodes.Num())
+            {
+                bIsMoving = false;
+            }
+        }
     }
 }
 
 void AEnemy::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
     ApplyDamage(10);
+}
+
+void AEnemy::SetPath(const TArray<ATDGraphNode*> NewPath)
+{
+    PathNodes = NewPath;
+    CurrentNodeIndex = 0;
+}
+
+void AEnemy::StartMoving()
+{
+    bIsMoving = true;
 }
 
 void AEnemy::ApplyDamage(int Damage)

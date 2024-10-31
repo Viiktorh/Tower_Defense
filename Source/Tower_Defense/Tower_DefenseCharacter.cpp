@@ -11,6 +11,7 @@
 #include "EnhancedInputSubsystems.h"
 #include "InputActionValue.h"
 #include "DrawDebugHelpers.h"
+#include "Enemy.h"
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -91,10 +92,7 @@ void ATower_DefenseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerI
 		EnhancedInputComponent->BindAction(PushAction, ETriggerEvent::Started, this, &ATower_DefenseCharacter::PushEnemy);
 		
 	}
-	else
-	{
-		UE_LOG(LogTemplateCharacter, Error, TEXT("'%s' Failed to find an Enhanced Input component! This template is built to use the Enhanced Input system. If you intend to use the legacy system, then you will need to update this C++ file."), *GetNameSafe(this));
-	}
+
 }
 
 void ATower_DefenseCharacter::Move(const FInputActionValue& Value)
@@ -140,9 +138,11 @@ void ATower_DefenseCharacter::PushEnemy()
 	AController* PlayerController = GetController();
 	//Determines where the Beam start and end locations are.
 	FRotator BeamRotation = FollowCamera->GetRelativeRotation();
-	FVector BeamStart = GetActorLocation();// + BeamRotation.RotateVector(GuntipOffset);
+	FVector BeamStart = GetActorLocation();
 	FVector ForwardVector = FollowCamera->GetForwardVector();
 	FVector BeamEnd = ((ForwardVector * 1800.f) + BeamStart);
+	FVector PushBackDirection = BeamStart - (BeamStart.Z - 50.f);
+	
 	//Initialize Collision parameters
 	FCollisionQueryParams CollisionParams;
 
@@ -157,12 +157,18 @@ void ATower_DefenseCharacter::PushEnemy()
 	{
 		if(OutHit.GetActor() != nullptr)
 		{
-			UPrimitiveComponent* component = Cast<UPrimitiveComponent>(OutHit.GetActor()->GetRootComponent());
+			FVector VectorToEnemy = GetActorLocation() + (OutHit.GetActor()->GetActorLocation() - GetActorLocation());
+			FVector PushBackEndPoint = VectorToEnemy + (GetActorLocation().ZAxisVector * 200.f);
+			OutHit.GetActor()->SetActorLocation(PushBackEndPoint);
+			//OutHit.GetComponent()->AddImpulse(ForwardVector*1000,FName("NAME_None"), true);
+			/*UPrimitiveComponent* component = Cast<UPrimitiveComponent>(OutHit.GetActor()->GetRootComponent());
 			if (component != nullptr)
 			{
 				component->AddImpulseAtLocation(ForwardVector*500, BeamEnd);
 			}
-			OutHit.GetActor()->GetRootComponent()->AddLocalRotation(BeamRotation);
+			OutHit.GetActor()->GetRootComponent()->AddLocalRotation(BeamRotation);*/
+			//SetActorLocation(GetActorLocation() + (Direction * MoveSpeed * GetWorld()->GetDeltaSeconds()));
+			DrawDebugLine(GetWorld(), BeamStart, PushBackEndPoint, FColor::Cyan, false, 2.0f, 0, 1);
 		}
 	}
 }

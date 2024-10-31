@@ -27,7 +27,7 @@ void ATDGraphNode::BeginPlay()
 				GetWorld(),
 				GetActorLocation(),
 				Neighbor->GetActorLocation(),
-				FColor::Green,
+				FColor::Yellow,
 				true,
 				-1.0f,
 				0,
