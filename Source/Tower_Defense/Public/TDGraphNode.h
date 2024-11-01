@@ -29,6 +29,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "GraphNode")
 	TArray<ATDGraphNode*> Neighbors;
 
+	UPROPERTY(BlueprintReadOnly, Category = "GraphNode")
+	TArray<float> DistanceToNeighbors;
+
 protected:
 	virtual void BeginPlay() override;
 };

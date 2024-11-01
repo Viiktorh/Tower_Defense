@@ -71,3 +71,20 @@ TArray<ATDGraphNode*> ATDGraphNodeManager::FindShortestPath()
 
     return Path;
 }
+
+float ATDGraphNodeManager::Heuristic(FVector StartNodeLocation,FVector EndNodeLocation)
+{
+    if (StartNode != nullptr && EndNode != nullptr)
+    {
+    	StartNodeLocation = StartNode->GetActorLocation();
+    	EndNodeLocation = EndNode->GetActorLocation();
+    	return (StartNodeLocation.X - EndNodeLocation.X) + (StartNodeLocation.Y - EndNodeLocation.Y); 
+    }
+}
+
+TArray<ATDGraphNode*> ATDGraphNodeManager::AStarSearch()
+{
+    TArray<ATDGraphNode*> Path;
+    return Path;
+}
+

@@ -158,7 +158,7 @@ void ATower_DefenseCharacter::PushEnemy()
 		if(OutHit.GetActor() != nullptr)
 		{
 			//TODO: This does not push enemies away, it only teleports them up.
-			FVector VectorToEnemy = GetActorLocation() + (OutHit.GetActor()->GetActorLocation() - GetActorLocation());
+			FVector VectorToEnemy = GetActorLocation() + ((OutHit.GetActor()->GetActorLocation() - GetActorLocation()) * 2);
 			FVector PushBackEndPoint = VectorToEnemy + (GetActorLocation().ZAxisVector * 200.f);
 			OutHit.GetActor()->SetActorLocation(PushBackEndPoint);
 			//OutHit.GetComponent()->AddImpulse(ForwardVector*1000,FName("NAME_None"), true);

@@ -20,9 +20,17 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "GraphManager")
 	TArray<ATDGraphNode*> FindShortestPath();
 
+
+	UFUNCTION(BlueprintCallable, Category = "GraphManager")
+	TArray<ATDGraphNode*> AStarSearch();
 	/*
 	 * Variables
 	 */
+	inline float Heuristic(FVector a, FVector b);
+
+	FVector StartNodeLocation;
+	FVector EndNodeLocation;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "GraphManager")
 	TArray<ATDGraphNode*> AllNodes;
 

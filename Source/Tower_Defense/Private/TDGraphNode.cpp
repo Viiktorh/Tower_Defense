@@ -33,8 +33,11 @@ void ATDGraphNode::BeginPlay()
 				0,
 				5.0f
 			);
+			float Distance = GetDistanceTo(Neighbor);
+			DistanceToNeighbors.Add(Distance);
 		}
 	}
+
 }
 
 void ATDGraphNode::AddNeighbor(ATDGraphNode* Neighbor)

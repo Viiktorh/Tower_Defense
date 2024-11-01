@@ -30,7 +30,7 @@ void ATower_DefenseGameMode::Tick(float DeltaTime)
 
 		UWorld* world = GetWorld();
 		
-		if (world)
+		if (world && UGameplayStatics::GetPlayerCharacter(GetWorld(), 0) != nullptr)
 		{
 			int playerIndex = 0;
 
