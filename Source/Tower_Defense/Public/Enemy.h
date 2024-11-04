@@ -5,6 +5,7 @@
 #include "GameFramework/Character.h"
 #include "Components/WidgetComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
+#include "Components/BoxComponent.h" 
 #include "Enemy.generated.h"
 
 class ATDGraphNode;
@@ -36,6 +37,9 @@ public:
 
     UFUNCTION()
     void StartMoving();
+
+    UPROPERTY(VisibleAnywhere, Category = "Components")
+    UBoxComponent* BoxComponent;
 
     UPROPERTY(VisibleAnywhere, Category = "Components")
     USkeletalMeshComponent* MeshComponent;

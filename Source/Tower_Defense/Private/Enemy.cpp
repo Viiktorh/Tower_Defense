@@ -3,15 +3,18 @@
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "UEnemyHealthBar.h"
+#include "Components/BoxComponent.h" 
 #include "Kismet/GameplayStatics.h"
 #include "Microsoft/AllowMicrosoftPlatformTypes.h"
+
+
+class UBoxComponent;
 
 AEnemy::AEnemy()
 {
     PrimaryActorTick.bCanEverTick = true;
-    RootComponent = MeshComponent;
-    MeshComponent = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("MeshComponent"));
-    MeshComponent->SetupAttachment(RootComponent);
+    BoxComponent = CreateDefaultSubobject<UBoxComponent>(TEXT("RootComponent"));
+    RootComponent = BoxComponent;
     Health = 100;
 
     // AI movement
@@ -20,7 +23,7 @@ AEnemy::AEnemy()
 
     // Health Bar
     HealthBarWidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("HealthBarWidgetComponent"));
-    HealthBarWidgetComponent->SetupAttachment(MeshComponent);
+    HealthBarWidgetComponent->SetupAttachment(RootComponent);
     HealthBarWidgetComponent->SetWidgetSpace(EWidgetSpace::Screen);
     HealthBarWidgetComponent->SetRelativeLocation(FVector(0, 0, 100));
 }
