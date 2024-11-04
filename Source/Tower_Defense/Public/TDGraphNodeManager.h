@@ -3,11 +3,15 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "TDPriorityQueue.h"
 #include "GameFramework/Actor.h"
 #include "TDGraphNodeManager.generated.h"
 
 class AEnemy;
 class ATDGraphNode;
+
+
+
 
 UCLASS()
 class TOWER_DEFENSE_API ATDGraphNodeManager : public AActor
@@ -22,14 +26,19 @@ public:
 
 
 	UFUNCTION(BlueprintCallable, Category = "GraphManager")
-	TArray<ATDGraphNode*> AStarSearch();
+	TArray<ATDGraphNode*> AStarSearch(
+		ATDGraphNodeManager* Graph,
+		ATDGraphNode* StartNode,
+		ATDGraphNode* EndNode,
+		TMap<ATDGraphNode*, ATDGraphNode*>& CameFrom, 
+		TMap<ATDGraphNode*, double>& CostSoFar);
 	/*
 	 * Variables
 	 */
-	inline float Heuristic(FVector a, FVector b);
+	float Heuristic(FVector StartNodeLocation, FVector EndNodeLocation);
 
-	FVector StartNodeLocation;
-	FVector EndNodeLocation;
+	//FVector StartNodeLocation;
+	//FVector EndNodeLocation;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "GraphManager")
 	TArray<ATDGraphNode*> AllNodes;

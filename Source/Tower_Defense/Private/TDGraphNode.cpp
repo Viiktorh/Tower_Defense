@@ -34,7 +34,7 @@ void ATDGraphNode::BeginPlay()
 				5.0f
 			);
 			float Distance = GetDistanceTo(Neighbor);
-			DistanceToNeighbors.Add(Distance);
+			CostToNeighbors.Add(Distance);
 		}
 	}
 

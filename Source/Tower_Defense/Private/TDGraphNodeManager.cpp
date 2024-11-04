@@ -4,6 +4,7 @@
 #include "TDGraphNodeManager.h"
 #include "TDGraphNode.h"
 #include "Enemy.h"
+#include "TDPriorityQueue.h"
 
 // Sets default values
 ATDGraphNodeManager::ATDGraphNodeManager()
@@ -80,11 +81,48 @@ float ATDGraphNodeManager::Heuristic(FVector StartNodeLocation,FVector EndNodeLo
     	EndNodeLocation = EndNode->GetActorLocation();
     	return (StartNodeLocation.X - EndNodeLocation.X) + (StartNodeLocation.Y - EndNodeLocation.Y); 
     }
+    return 0;
 }
 
-TArray<ATDGraphNode*> ATDGraphNodeManager::AStarSearch()
+TArray<ATDGraphNode*> ATDGraphNodeManager::AStarSearch(
+    ATDGraphNodeManager* Graph,
+    ATDGraphNode* StartNode,
+    ATDGraphNode* EndNode,
+    TMap<ATDGraphNode*, ATDGraphNode*>& CameFrom,
+    TMap<ATDGraphNode*, double>& CostSoFar)
 {
     TArray<ATDGraphNode*> Path;
-    return Path;
+    if (!StartNode || !EndNode)
+    {
+        return Path;
+    }
+
+    TDPriorityQueue<ATDGraphNode*, double> Frontier;
+    Frontier.Push(StartNode, 0);
+
+    CameFrom[StartNode] = StartNode;
+    CostSoFar[StartNode] = 0;
+
+    while (!Frontier.Empty())
+    {
+        ATDGraphNode* Current = Frontier.get();
+
+        if (Current == EndNode)
+        {
+            break;
+        }
+
+        for(ATDGraphNode* Next : Current->Neighbors)
+        {
+            double NewCost = CostSoFar[Current] + Current->CostToNeighbors(Current, Next); ///Questionable if correct?
+            if (CostSoFar.Find(Next) == CostSoFar.end() || NewCost < CostSoFar[Next])
+            {
+                CostSoFar[Next] = NewCost;
+                double Priority = NewCost + Heuristic(Next->GetActorLocation(), EndNode->GetActorLocation());
+                Frontier.put(Next, Priority);
+                CameFrom[Next] = Current;
+            }
+        }
+    }
 }
 
