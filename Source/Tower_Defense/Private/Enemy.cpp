@@ -87,7 +87,7 @@ void AEnemy::ApplyDamage(int Damage)
     UUEnemyHealthBar* EnemyHealthBar = Cast<UUEnemyHealthBar>(UserWidget);
     if (EnemyHealthBar)
     {
-        EnemyHealthBar->Health = static_cast<float>(Health) / 100.0f; // Assuming 100 is the max health
+        EnemyHealthBar->Health = static_cast<float>(Health) / 100.0f;
     }
 
     if (Health <= 0)
