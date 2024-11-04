@@ -54,7 +54,7 @@ void ATower::ShootProjectile(AActor* Target)
     FVector TossVelocity;
     const FVector Start = GetActorLocation();
     const FVector End = Target->GetActorLocation();
-    float TossSpeed = 2000.0f; // Adjust this to match your needs
+    float TossSpeed = 2000.0f;
     bool bFound = UGameplayStatics::SuggestProjectileVelocity(this, TossVelocity, Start, End, TossSpeed, false, 0.0f, 0.0f, ESuggestProjVelocityTraceOption::DoNotTrace);
     if (bFound)
     {
