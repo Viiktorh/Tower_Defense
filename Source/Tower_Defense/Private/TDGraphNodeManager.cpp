@@ -84,28 +84,25 @@ float ATDGraphNodeManager::Heuristic(FVector StartNodeLocation,FVector EndNodeLo
     return 0;
 }
 
-TArray<ATDGraphNode*> ATDGraphNodeManager::AStarSearch(
-    ATDGraphNodeManager* Graph,
-    ATDGraphNode* StartNode,
-    ATDGraphNode* EndNode,
-    TMap<ATDGraphNode*, ATDGraphNode*>& CameFrom,
-    TMap<ATDGraphNode*, double>& CostSoFar)
+TArray<ATDGraphNode*> ATDGraphNodeManager::AStarSearch()
 {
+    TMap<ATDGraphNode*, ATDGraphNode*> CameFrom;
+    TMap<ATDGraphNode*, double> CostSoFar;
     TArray<ATDGraphNode*> Path;
     if (!StartNode || !EndNode)
     {
         return Path;
     }
 
-    TDPriorityQueue<ATDGraphNode*, double> Frontier;
-    Frontier.Push(StartNode, 0);
+    TPriorityQueue<ATDGraphNode*> Frontier;
+	Frontier.Push(StartNode, 0);
 
-    CameFrom[StartNode] = StartNode;
-    CostSoFar[StartNode] = 0;
-
-    while (!Frontier.Empty())
+    CameFrom.Add(StartNode, StartNode);
+    CostSoFar.Add(StartNode, 0);
+    
+    while (!Frontier.IsEmpty())
     {
-        ATDGraphNode* Current = Frontier.get();
+        ATDGraphNode* Current = Frontier.Pop();
 
         if (Current == EndNode)
         {
@@ -114,12 +111,13 @@ TArray<ATDGraphNode*> ATDGraphNodeManager::AStarSearch(
 
         for(ATDGraphNode* Next : Current->Neighbors)
         {
-            double NewCost = CostSoFar[Current] + Current->CostToNeighbors(Current, Next); ///Questionable if correct?
-            if (CostSoFar.Find(Next) == CostSoFar.end() || NewCost < CostSoFar[Next])
+            double NewCost = CostSoFar[Current] + Current->GetCostToNeighbor(Current, Next);
+            if (CostSoFar.FindRef(Next) == CostSoFar.Num() 
+                || NewCost < CostSoFar.FindRef(Next))
             {
                 CostSoFar[Next] = NewCost;
                 double Priority = NewCost + Heuristic(Next->GetActorLocation(), EndNode->GetActorLocation());
-                Frontier.put(Next, Priority);
+                Frontier.Push(Next, Priority);
                 CameFrom[Next] = Current;
             }
         }

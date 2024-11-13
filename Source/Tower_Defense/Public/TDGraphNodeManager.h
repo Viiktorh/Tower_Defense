@@ -26,12 +26,7 @@ public:
 
 
 	UFUNCTION(BlueprintCallable, Category = "GraphManager")
-	TArray<ATDGraphNode*> AStarSearch(
-		ATDGraphNodeManager* Graph,
-		ATDGraphNode* StartNode,
-		ATDGraphNode* EndNode,
-		TMap<ATDGraphNode*, ATDGraphNode*>& CameFrom, 
-		TMap<ATDGraphNode*, double>& CostSoFar);
+	TArray<ATDGraphNode*> AStarSearch();
 	/*
 	 * Variables
 	 */

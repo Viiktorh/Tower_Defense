@@ -2,13 +2,14 @@
 
 #pragma once
 
+#include <ranges>
+#include <ranges>
+
 #include "CoreMinimal.h"
 
 /**
  * 
  */
-class TOWER_DEFENSE_API TDPriorityQueue
-{
 
     template <typename InElementType>
     struct TPriorityQueueNode {
@@ -19,7 +20,7 @@ class TOWER_DEFENSE_API TDPriorityQueue
         {
         }
 
-        TPriorityQueueNode(InElementType InElement, float InPriority)
+        TPriorityQueueNode(InElementType InElement, double InPriority)
         {
             Element = InElement;
             Priority = InPriority;
@@ -55,7 +56,7 @@ class TOWER_DEFENSE_API TDPriorityQueue
             return Node;
         }
 
-        void Push(InElementType Element, float Priority)
+        void Push(InElementType Element, double Priority)
         {
             Array.HeapPush(TPriorityQueueNode<InElementType>(Element, Priority));
         }
@@ -65,7 +66,14 @@ class TOWER_DEFENSE_API TDPriorityQueue
             return Array.Num() == 0;
         }
 
+        InElementType Get()
+    	{
+            InElementType best_item = std::ranges::views::elements.top().second;
+            std::ranges::views::elements.pop();
+            return best_item;
+        }
+
     private:
         TArray<TPriorityQueueNode<InElementType>> Array;
     };
-};
+

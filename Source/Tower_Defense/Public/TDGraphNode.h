@@ -20,6 +20,8 @@ public:
 
 	void AddNeighbor(ATDGraphNode* Neighbor);
 
+	double GetCostToNeighbor(ATDGraphNode* CurrentNode, ATDGraphNode* Neighbor);
+
 	/*
 	 * Variables
 	 */
@@ -30,7 +32,7 @@ public:
 	TArray<ATDGraphNode*> Neighbors;
 
 	UPROPERTY(BlueprintReadOnly, Category = "GraphNode")
-	TArray<float> CostToNeighbors;
+	TArray<double> CostToNeighbors;
 
 protected:
 	virtual void BeginPlay() override;

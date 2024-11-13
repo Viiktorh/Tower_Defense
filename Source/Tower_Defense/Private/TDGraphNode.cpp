@@ -47,3 +47,8 @@ void ATDGraphNode::AddNeighbor(ATDGraphNode* Neighbor)
 		Neighbors.Add(Neighbor);
 	}
 }
+
+double ATDGraphNode::GetCostToNeighbor(ATDGraphNode* CurrentNode, ATDGraphNode* Neighbor)
+{
+	return CurrentNode->GetDistanceTo(Neighbor);
+}
