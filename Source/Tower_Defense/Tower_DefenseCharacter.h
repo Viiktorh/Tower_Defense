@@ -17,6 +17,9 @@ class ATower_DefenseCharacter : public ACharacter
 {
     GENERATED_BODY()
 
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
+    UCameraComponent* ViewCamera;
+
     /** Camera boom positioning the camera behind the character */
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
     USpringArmComponent* CameraBoom;
@@ -85,6 +88,18 @@ protected:
 
 	/** Called for undoing the last tower placement */
     void UndoTowerPlacement();
+
+    //called for moving forward
+    void MoveForward(float Value);
+
+    //called for moving to the right
+    void MoveRight(float Value);
+
+    //called for turning
+    void Turn(float Value);
+
+    //called for looking up
+    void LookUp(float Value);
 
     /** Stack to store placed towers */
     TArray<ATower*> PlacedTowers;
