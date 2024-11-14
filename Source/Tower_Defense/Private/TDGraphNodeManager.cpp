@@ -4,6 +4,7 @@
 #include "TDGraphNodeManager.h"
 #include "TDGraphNode.h"
 #include "Enemy.h"
+#include "TDPriorityQueue.h"
 
 // Sets default values
 ATDGraphNodeManager::ATDGraphNodeManager()
@@ -71,3 +72,73 @@ TArray<ATDGraphNode*> ATDGraphNodeManager::FindShortestPath()
 
     return Path;
 }
+
+double ATDGraphNodeManager::Heuristic(FVector StartNodeLocation,FVector EndNodeLocation)
+{
+    if (StartNode != nullptr && EndNode != nullptr)
+    {
+    	StartNodeLocation = StartNode->GetActorLocation();
+    	EndNodeLocation = EndNode->GetActorLocation();
+    	return (StartNodeLocation.X - EndNodeLocation.X) + (StartNodeLocation.Y - EndNodeLocation.Y); 
+    }
+    return 999999;
+}
+
+TArray<ATDGraphNode*> ATDGraphNodeManager::AStarSearch()
+{
+    TMap<ATDGraphNode*, ATDGraphNode*> CameFrom;
+    TMap<ATDGraphNode*, double> CostSoFar;
+    TArray<ATDGraphNode*> Path;
+    if (!StartNode || !EndNode)
+    {
+        return Path;
+    }
+
+    TPriorityQueue<ATDGraphNode*> Frontier;
+	Frontier.Push(StartNode, 0);
+
+    CameFrom.Add(StartNode, StartNode);
+    CostSoFar.Add(StartNode, 0);
+    
+    while (!Frontier.IsEmpty())
+    {
+        ATDGraphNode* Current = Frontier.Pop();
+
+        if (Current == EndNode)
+        {
+            break;
+        }
+
+        for (ATDGraphNode* Next : Current->Neighbors)
+        {
+            double NewCost = CostSoFar[Current] + Current->GetCostToNeighbor(Current, Next);
+            if (CostSoFar.FindRef(Next) == CostSoFar.Num()
+                || NewCost < CostSoFar.FindRef(Next))
+            {
+                CostSoFar[Next] = NewCost;
+                double Priority = NewCost + Heuristic(Next->GetActorLocation(), EndNode->GetActorLocation());
+                Frontier.Push(Next, Priority);
+                CameFrom[Next] = Current;
+
+            }
+        }
+    }
+    // Retrace the path and put into an Array
+    ATDGraphNode* Current = EndNode;
+    if (CameFrom.Find(EndNode) != CameFrom.Find(Current))
+    {
+        return Path; //No path can be found 
+    }
+    while (Current != StartNode || !CameFrom.IsEmpty())
+    {
+        Path.Push(Current);
+        Current = CameFrom[Current];
+    }
+    Path.Push(StartNode);
+    // TODO: Reverse the Path
+    return Path;
+}
+
+
+
+

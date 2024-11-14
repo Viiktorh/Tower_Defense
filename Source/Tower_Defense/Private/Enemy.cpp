@@ -1,11 +1,14 @@
 #include "Enemy.h"
-
 #include "TDGraphNode.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "UEnemyHealthBar.h"
+#include "Components/BoxComponent.h" 
 #include "Kismet/GameplayStatics.h"
 #include "Microsoft/AllowMicrosoftPlatformTypes.h"
+
+
+class UBoxComponent;
 
 AEnemy::AEnemy()
 {
@@ -15,11 +18,11 @@ AEnemy::AEnemy()
     MeshComponent->SetupAttachment(RootComponent);
     Health = 100;
 
-    //AI movement
+    // AI movement
     CurrentNodeIndex = 0;
     bIsMoving = false;
 
-    //Health Bar
+    // Health Bar
     HealthBarWidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("HealthBarWidgetComponent"));
     HealthBarWidgetComponent->SetupAttachment(MeshComponent);
     HealthBarWidgetComponent->SetWidgetSpace(EWidgetSpace::Screen);
@@ -36,6 +39,8 @@ void AEnemy::BeginPlay()
     {
         EnemyHealthBar->Health = static_cast<float>(Health) / 100.0f;
     }
+
+    HealthBarWidgetComponent->SetVisibility(true);
 }
 
 void AEnemy::Tick(float DeltaTime)
@@ -46,7 +51,7 @@ void AEnemy::Tick(float DeltaTime)
         FVector TargetLocation = PathNodes[CurrentNodeIndex]->GetActorLocation();
         FVector Direction = (TargetLocation - GetActorLocation()).GetSafeNormal();
         FVector NewLocation = GetActorLocation() + Direction * MoveSpeed * DeltaTime;
-        
+
         SetActorLocation(NewLocation);
 
         if (FVector::Dist(GetActorLocation(), TargetLocation) < 100.0f)
@@ -86,7 +91,7 @@ void AEnemy::ApplyDamage(int Damage)
     UUEnemyHealthBar* EnemyHealthBar = Cast<UUEnemyHealthBar>(UserWidget);
     if (EnemyHealthBar)
     {
-        EnemyHealthBar->Health = static_cast<float>(Health) / 100.0f; // Assuming 100 is the max health
+        EnemyHealthBar->Health = static_cast<float>(Health) / 100.0f;
     }
 
     if (Health <= 0)

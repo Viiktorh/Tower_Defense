@@ -4,6 +4,8 @@
 #include "TDGraphNodeManager.h"
 #include "GameFramework/Character.h"
 #include "Components/WidgetComponent.h"
+#include "GameFramework/ProjectileMovementComponent.h"
+#include "Components/BoxComponent.h" 
 #include "Enemy.generated.h"
 
 class ATDGraphNode;
@@ -26,7 +28,6 @@ public:
     void ApplyDamage(int Damage);
     void DestroyEnemy();
     void MoveTowardsTarget(AActor* Target);
-
 
     UFUNCTION()
     void OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
