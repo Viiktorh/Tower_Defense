@@ -73,7 +73,7 @@ TArray<ATDGraphNode*> ATDGraphNodeManager::FindShortestPath()
     return Path;
 }
 
-float ATDGraphNodeManager::Heuristic(FVector StartNodeLocation,FVector EndNodeLocation)
+double ATDGraphNodeManager::Heuristic(FVector StartNodeLocation,FVector EndNodeLocation)
 {
     if (StartNode != nullptr && EndNode != nullptr)
     {
@@ -81,7 +81,7 @@ float ATDGraphNodeManager::Heuristic(FVector StartNodeLocation,FVector EndNodeLo
     	EndNodeLocation = EndNode->GetActorLocation();
     	return (StartNodeLocation.X - EndNodeLocation.X) + (StartNodeLocation.Y - EndNodeLocation.Y); 
     }
-    return 0;
+    return 999999;
 }
 
 TArray<ATDGraphNode*> ATDGraphNodeManager::AStarSearch()
@@ -121,6 +121,23 @@ TArray<ATDGraphNode*> ATDGraphNodeManager::AStarSearch()
                 CameFrom[Next] = Current;
             }
         }
+
     }
+    ATDGraphNode* Current = EndNode;
+    if (CameFrom.Find(EndNode) != CameFrom.Find(Current))
+    {
+        return Path; //No path can be found 
+    }
+    while (Current != StartNode)
+    {
+        Path.Push(Current);
+        Current = CameFrom[Current];
+    }
+    Path.Push(StartNode);
+    // TODO: Reverse the Path
+    return Path;
 }
+
+
+
 

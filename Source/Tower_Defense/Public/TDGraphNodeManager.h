@@ -27,10 +27,11 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "GraphManager")
 	TArray<ATDGraphNode*> AStarSearch();
+
 	/*
 	 * Variables
 	 */
-	float Heuristic(FVector StartNodeLocation, FVector EndNodeLocation);
+	double Heuristic(FVector StartNodeLocation, FVector EndNodeLocation);
 
 	//FVector StartNodeLocation;
 	//FVector EndNodeLocation;
