@@ -13,8 +13,9 @@ class UBoxComponent;
 AEnemy::AEnemy()
 {
     PrimaryActorTick.bCanEverTick = true;
-    BoxComponent = CreateDefaultSubobject<UBoxComponent>(TEXT("RootComponent"));
-    RootComponent = BoxComponent;
+    RootComponent = MeshComponent;
+    MeshComponent = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("MeshComponent"));
+    MeshComponent->SetupAttachment(RootComponent);
     Health = 100;
 
     // AI movement
@@ -23,7 +24,7 @@ AEnemy::AEnemy()
 
     // Health Bar
     HealthBarWidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("HealthBarWidgetComponent"));
-    HealthBarWidgetComponent->SetupAttachment(RootComponent);
+    HealthBarWidgetComponent->SetupAttachment(MeshComponent);
     HealthBarWidgetComponent->SetWidgetSpace(EWidgetSpace::Screen);
     HealthBarWidgetComponent->SetRelativeLocation(FVector(0, 0, 100));
 }

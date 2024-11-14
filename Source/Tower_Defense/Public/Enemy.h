@@ -39,9 +39,6 @@ public:
     void StartMoving();
 
     UPROPERTY(VisibleAnywhere, Category = "Components")
-    UBoxComponent* BoxComponent;
-
-    UPROPERTY(VisibleAnywhere, Category = "Components")
     USkeletalMeshComponent* MeshComponent;
 
     UPROPERTY(VisibleAnywhere, Category = "Movement")
