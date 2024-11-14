@@ -109,26 +109,27 @@ TArray<ATDGraphNode*> ATDGraphNodeManager::AStarSearch()
             break;
         }
 
-        for(ATDGraphNode* Next : Current->Neighbors)
+        for (ATDGraphNode* Next : Current->Neighbors)
         {
             double NewCost = CostSoFar[Current] + Current->GetCostToNeighbor(Current, Next);
-            if (CostSoFar.FindRef(Next) == CostSoFar.Num() 
+            if (CostSoFar.FindRef(Next) == CostSoFar.Num()
                 || NewCost < CostSoFar.FindRef(Next))
             {
                 CostSoFar[Next] = NewCost;
                 double Priority = NewCost + Heuristic(Next->GetActorLocation(), EndNode->GetActorLocation());
                 Frontier.Push(Next, Priority);
                 CameFrom[Next] = Current;
+
             }
         }
-
     }
+    // Retrace the path and put into an Array
     ATDGraphNode* Current = EndNode;
     if (CameFrom.Find(EndNode) != CameFrom.Find(Current))
     {
         return Path; //No path can be found 
     }
-    while (Current != StartNode)
+    while (Current != StartNode || !CameFrom.IsEmpty())
     {
         Path.Push(Current);
         Current = CameFrom[Current];
