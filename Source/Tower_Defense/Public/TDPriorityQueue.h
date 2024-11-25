@@ -66,12 +66,6 @@
             return Array.Num() == 0;
         }
 
-        InElementType Get()
-    	{
-            InElementType best_item = std::ranges::views::elements.top().second;
-            std::ranges::views::elements.pop();
-            return best_item;
-        }
 
     private:
         TArray<TPriorityQueueNode<InElementType>> Array;

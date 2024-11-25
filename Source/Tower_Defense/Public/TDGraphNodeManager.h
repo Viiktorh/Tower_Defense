@@ -28,10 +28,12 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "GraphManager")
 	TArray<ATDGraphNode*> AStarSearch();
 
+	TArray<ATDGraphNode*> ReconstructPath(ATDGraphNode* Start, ATDGraphNode* Goal, TMap<ATDGraphNode*, ATDGraphNode*> CameFrom);
+
 	/*
 	 * Variables
 	 */
-	double Heuristic(FVector StartNodeLocation, FVector EndNodeLocation);
+	double Heuristic(ATDGraphNode* StartNodeLocation, ATDGraphNode* EndNodeLocation);
 
 	//FVector StartNodeLocation;
 	//FVector EndNodeLocation;
