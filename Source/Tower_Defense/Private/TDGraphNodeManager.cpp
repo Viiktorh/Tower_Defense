@@ -100,6 +100,7 @@ TArray<ATDGraphNode*> ATDGraphNodeManager::AStarSearch()
     TArray<ATDGraphNode*> CameFromKeyArray;
     TArray<ATDGraphNode*> Path;
     ATDGraphNode* Current;
+    double NewCost;
 
     if (!StartNode || !EndNode)
     {
@@ -130,45 +131,49 @@ TArray<ATDGraphNode*> ATDGraphNodeManager::AStarSearch()
         for (ATDGraphNode* Next : Current->Neighbors)
         {
             GEngine->AddOnScreenDebugMessage(-1, 8.f, FColor::Emerald, FString::Printf(TEXT("Finding Path...")));
-            double NewCost = CostSoFar.FindRef(Current) + Current->GetCostToNeighbor(Current, Next);
+        	NewCost = CostSoFar.FindOrAdd(Current) + Current->GetCostToNeighbor(Current, Next);
             /*
-             *sdfhsdjhghfdhgfjafklskfdgajhgkafjdhkgfdlahkj
+             *
              * Test this if Statement
              */
+            //UE_LOG(LogTemp, Warning, TEXT("Current Node is %s" ),Current->GetActorLabel());
+            GEngine->AddOnScreenDebugMessage(-1, 20.f, FColor::Emerald, FString::Printf(TEXT("NewCost is %d, Cost so Far: %d"), NewCost, CostSoFar.FindRef(Next)));
             CostSoFar.GenerateKeyArray(CostSoFarKeyArray);
-            if (CostSoFar.FindRef(Next) == CostSoFar[CostSoFarKeyArray.Last()] || NewCost < CostSoFar.FindRef(Next))
+            if (CostSoFar.FindRef(Next) == CostSoFar[CostSoFarKeyArray.Last()] || NewCost < CostSoFar.FindOrAdd(Next))
             {
                 GEngine->AddOnScreenDebugMessage(-1, 8.f, FColor::Yellow, FString::Printf(TEXT("Adding Costs...")));
-                CostSoFar.Emplace(Next, NewCost);
+                CostSoFar.FindOrAdd(Next) = NewCost;
                 // Get Priority for next node
                 double Priority = NewCost + Heuristic(Next, EndNode);
 
                 //Push priority for Next node into the Frontier
-                Frontier.Push(Next, Priority);
-                CameFrom.Emplace(Next, Current);
+                Frontier.Push(Next, Priority); //TODO: Check if Correct
+                CameFrom.FindOrAdd(Next) = Current;
+
+                GEngine->AddOnScreenDebugMessage(-1, 20.f, FColor::Emerald, FString::Printf(TEXT("NewCost is (in if-Statement) %d Cost So Far: %d"), NewCost, CostSoFar.FindRef(Next)));
 
                 DrawDebugLine(GetWorld(), Next->GetActorLocation(), Current->GetActorLocation(), FColor::Red, true, -1.0f, 2, 5.0f);
             }
         	CostSoFarKeyArray.Empty();
         }
-    CameFrom.GenerateKeyArray(CameFromKeyArray);
-	    if (CameFrom.Find(EndNode) == CameFrom.Find(CameFromKeyArray.Last()))
-	    {
-            GEngine->AddOnScreenDebugMessage(-1, 11.f, FColor::Emerald, FString::Printf(TEXT("Could Not Find Any Path")));
-	        return Path; //No path can be found 
-	    }
+	    CameFrom.GenerateKeyArray(CameFromKeyArray);
+		if (CameFrom.Find(EndNode) == CameFrom.Find(CameFromKeyArray.Last()))
+		{
+			GEngine->AddOnScreenDebugMessage(-1, 11.f, FColor::Blue, FString::Printf(TEXT("Could Not Find Any Path")));
+			return Path; //No path can be found 
+		}
 		if (CameFrom.Contains(StartNode))
 		{
 			while (Current != StartNode)
-		    {
-		        //test this
-	            GEngine->AddOnScreenDebugMessage(-1, 11.f, FColor::Red, FString::Printf(TEXT("Adding New Elements to Path")));
-		        Path.Emplace(Current);
-                Current = CameFrom[Current];
-		    }
-		}
-	    
+			{
+				//test this
+				GEngine->AddOnScreenDebugMessage(-1, 11.f, FColor::Red, FString::Printf(TEXT("Adding New Elements to Path")));
+				Path.Emplace(Current);
+				Current = CameFrom[Current];
+			}
+	    }
     }
+	    
     
 	//// Retrace the path and put into an Array
 	Path.Emplace(StartNode);

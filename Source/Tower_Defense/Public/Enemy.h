@@ -48,7 +48,7 @@ public:
     int Health;
 
     UPROPERTY(EditAnywhere, Category = "Movement")
-    float MoveSpeed = 200.0f;
+    float MoveSpeed = 400.0f;
 
     UPROPERTY(EditAnywhere, Category = "Movement")
     AActor* MoveTarget = nullptr;
