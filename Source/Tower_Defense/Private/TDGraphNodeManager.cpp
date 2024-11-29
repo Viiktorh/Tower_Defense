@@ -5,6 +5,7 @@
 #include "TDGraphNode.h"
 #include "Enemy.h"
 #include "TDPriorityQueue.h"
+#include "Microsoft/AllowMicrosoftPlatformTypes.h"
 
 // Sets default values
 ATDGraphNodeManager::ATDGraphNodeManager()
@@ -20,7 +21,7 @@ void ATDGraphNodeManager::BeginPlay()
 
     if (Enemy)
     {
-        TArray<ATDGraphNode*> Path = AStarSearch();
+        Path = AStarSearch();
         if (Path.Num() > 0)
         {
             Enemy->SetPath(Path);
@@ -31,8 +32,6 @@ void ATDGraphNodeManager::BeginPlay()
 
 TArray<ATDGraphNode*> ATDGraphNodeManager::FindShortestPath()
 {
-    TArray<ATDGraphNode*> Path;
-
     if (!StartNode || !EndNode)
     {
         return Path;
@@ -60,6 +59,8 @@ TArray<ATDGraphNode*> ATDGraphNodeManager::FindShortestPath()
             break;
         }
 
+        //Go to Neighbor if Visited-Map does not contain Neighbor-Key.
+        //Add visited Neighbor to the Visited-Map with Current Node as value.
         for (ATDGraphNode* Neighbor : CurrentNode->Neighbors)
         {
             if (!Visited.Contains(Neighbor))
@@ -75,45 +76,38 @@ TArray<ATDGraphNode*> ATDGraphNodeManager::FindShortestPath()
 
 double ATDGraphNodeManager::Heuristic(ATDGraphNode* StartNodeLocation,ATDGraphNode* EndNodeLocation)
 {
-    /*if (StartNode != nullptr && EndNode != nullptr)
-    {*/
-    double VectorLength = StartNodeLocation->GetDistanceTo(EndNodeLocation);
-	return VectorLength; 
-    /*}*/
-    //
-    /*return 999999;*/
+    double Heuristic = StartNodeLocation->GetActorLocation().X - EndNodeLocation->GetActorLocation().X + StartNodeLocation->GetActorLocation().Y - EndNodeLocation->GetActorLocation().Y;
+    return abs(Heuristic);
+    /*double VectorLength = StartNodeLocation->GetDistanceTo(EndNodeLocation);
+	return (VectorLength);*/
 }
 
 
-
-/*
- *Things to Check:
- *Is the Priority Queue Wrong? Does it need a .get() function?
- *Is the If-Statement Checking for CostSoFar Wrong? 
- */
-
 TArray<ATDGraphNode*> ATDGraphNodeManager::AStarSearch()
 {
-    TMap<ATDGraphNode*, ATDGraphNode*> CameFrom;
-    TMap<ATDGraphNode*, double> CostSoFar;
-    TArray<ATDGraphNode*> CostSoFarKeyArray;
-    TArray<ATDGraphNode*> CameFromKeyArray;
-    TArray<ATDGraphNode*> Path;
-    ATDGraphNode* Current;
-    double NewCost;
+
+	//TMap<ATDGraphNode*, ATDGraphNode*> CameFrom;
+	//TMap<ATDGraphNode*, double> CostSoFar;
+ //   TArray<ATDGraphNode*> CostSoFarKeyArray;
+ //   TArray<ATDGraphNode*> CameFromKeyArray;
+ //   TArray<ATDGraphNode*> Path;
+ //   ATDGraphNode* Current;
+ //   double NewCost;
+    
 
     if (!StartNode || !EndNode)
     {
         return Path;
     }
-    
+    TMap<ATDGraphNode*, ATDGraphNode*> Visited;
+    Visited.Add(StartNode, nullptr);
+
     TPriorityQueue<ATDGraphNode*> Frontier;
 	Frontier.Push(StartNode, 0);
-   
-    
 
-    CameFrom.Emplace(StartNode, StartNode);
-    CostSoFar.Emplace(StartNode, 0);
+
+    CameFrom.FindOrAdd(StartNode) = StartNode;
+    CostSoFar.FindOrAdd(StartNode) = 0;
 
     GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Emerald, FString::Printf(TEXT("Checking Frontier...")));
     while (!Frontier.IsEmpty())
@@ -122,57 +116,51 @@ TArray<ATDGraphNode*> ATDGraphNodeManager::AStarSearch()
         GEngine->AddOnScreenDebugMessage(-1, 6.f, FColor::Emerald, FString::Printf(TEXT("Frontier Is not Empty")));
         if (Current == EndNode)
         {
-            GEngine->AddOnScreenDebugMessage(-1, 7.f, FColor::Emerald, FString::Printf(TEXT("Current Node is EndNode")));
+            GEngine->AddOnScreenDebugMessage(-1, 7.f, FColor::Yellow, FString::Printf(TEXT("Current Node is EndNode")));
             break;
         }
-
-        
+		
         //Find the Path
-        for (ATDGraphNode* Next : Current->Neighbors)
+        //TODO: Add A Visited-Check so Next does not revisit its own node. 
+		
+        for (TObjectPtr<ATDGraphNode> Next : Current->Neighbors)
         {
-            GEngine->AddOnScreenDebugMessage(-1, 8.f, FColor::Emerald, FString::Printf(TEXT("Finding Path...")));
-        	NewCost = CostSoFar.FindOrAdd(Current) + Current->GetCostToNeighbor(Current, Next);
-            /*
-             *
-             * Test this if Statement
-             */
-            //UE_LOG(LogTemp, Warning, TEXT("Current Node is %s" ),Current->GetActorLabel());
-            GEngine->AddOnScreenDebugMessage(-1, 20.f, FColor::Emerald, FString::Printf(TEXT("NewCost is %d, Cost so Far: %d"), NewCost, CostSoFar.FindRef(Next)));
+        	GEngine->AddOnScreenDebugMessage(-1, 8.f, FColor::Emerald, FString::Printf(TEXT("Finding Path...")));
+        	double NewCost = CostSoFar.FindOrAdd(Current) + Current->CostToNeighbors.FindRef(Next);
+            
             CostSoFar.GenerateKeyArray(CostSoFarKeyArray);
-            if (CostSoFar.FindRef(Next) == CostSoFar[CostSoFarKeyArray.Last()] || NewCost < CostSoFar.FindOrAdd(Next))
+            if ((!CostSoFar.Contains(Next) || NewCost < CostSoFar.FindOrAdd(Next)) 
+                && !Visited.Contains(Next))
             {
+            	Visited.Add(Next, Current);
                 GEngine->AddOnScreenDebugMessage(-1, 8.f, FColor::Yellow, FString::Printf(TEXT("Adding Costs...")));
                 CostSoFar.FindOrAdd(Next) = NewCost;
                 // Get Priority for next node
                 double Priority = NewCost + Heuristic(Next, EndNode);
 
                 //Push priority for Next node into the Frontier
-                Frontier.Push(Next, Priority); //TODO: Check if Correct
+                Frontier.Push(Next, Priority);
                 CameFrom.FindOrAdd(Next) = Current;
-
-                GEngine->AddOnScreenDebugMessage(-1, 20.f, FColor::Emerald, FString::Printf(TEXT("NewCost is (in if-Statement) %d Cost So Far: %d"), NewCost, CostSoFar.FindRef(Next)));
 
                 DrawDebugLine(GetWorld(), Next->GetActorLocation(), Current->GetActorLocation(), FColor::Red, true, -1.0f, 2, 5.0f);
             }
-        	CostSoFarKeyArray.Empty();
+        	
         }
-	    CameFrom.GenerateKeyArray(CameFromKeyArray);
-		if (CameFrom.Find(EndNode) == CameFrom.Find(CameFromKeyArray.Last()))
-		{
-			GEngine->AddOnScreenDebugMessage(-1, 11.f, FColor::Blue, FString::Printf(TEXT("Could Not Find Any Path")));
-			return Path; //No path can be found 
-		}
-		if (CameFrom.Contains(StartNode))
-		{
-			while (Current != StartNode)
-			{
-				//test this
-				GEngine->AddOnScreenDebugMessage(-1, 11.f, FColor::Red, FString::Printf(TEXT("Adding New Elements to Path")));
-				Path.Emplace(Current);
-				Current = CameFrom[Current];
-			}
-	    }
     }
+
+	CameFrom.GenerateKeyArray(CameFromKeyArray);
+	if (CameFrom.FindRef(EndNode) != CameFrom.FindRef(CameFromKeyArray.Last()))
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 11.f, FColor::Blue, FString::Printf(TEXT("Could Not Find Any Path"))); //No path can be found 
+       
+	}
+	while (Current != StartNode)
+	{
+		//test this
+		GEngine->AddOnScreenDebugMessage(-1, 11.f, FColor::Red, FString::Printf(TEXT("Adding New Elements to Path")));
+		Path.Emplace(Current);
+		Current = CameFrom.FindOrAdd(Current);
+	}
 	    
     
 	//// Retrace the path and put into an Array

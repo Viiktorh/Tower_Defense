@@ -33,10 +33,15 @@ void ATDGraphNode::BeginPlay()
 				0,
 				5.0f
 			);
-			float Distance = GetDistanceTo(Neighbor);
-			CostToNeighbors.Add(Distance);
+			double Distance = abs(GetDistanceTo(Neighbor));
+			CostToNeighbors.Add(Neighbor, Distance);
 		}
 	}
+	CostToNeighbors.ValueSort([](const double& A,const double& B)
+		{
+			return A < B;
+		});
+	CostToNeighbors.GenerateKeyArray(Neighbors);
 
 }
 
@@ -50,5 +55,8 @@ void ATDGraphNode::AddNeighbor(ATDGraphNode* Neighbor)
 
 double ATDGraphNode::GetCostToNeighbor(ATDGraphNode* CurrentNode, ATDGraphNode* Neighbor)
 {
-	return CurrentNode->GetDistanceTo(Neighbor);
+	double VectorLength = CurrentNode->GetDistanceTo(Neighbor);
+	return abs(VectorLength);
 }
+
+

@@ -32,7 +32,7 @@ public:
 	TArray<ATDGraphNode*> Neighbors;
 
 	UPROPERTY(BlueprintReadOnly, Category = "GraphNode")
-	TArray<double> CostToNeighbors;
+	TMap<ATDGraphNode*, double> CostToNeighbors;
 
 protected:
 	virtual void BeginPlay() override;

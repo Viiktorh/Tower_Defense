@@ -50,6 +50,13 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "GraphManager")
 	AEnemy* Enemy;
 
+	TMap<ATDGraphNode*, ATDGraphNode*> CameFrom;
+	TMap<ATDGraphNode*, double> CostSoFar;
+	TArray<ATDGraphNode*> CostSoFarKeyArray;
+	TArray<ATDGraphNode*> CameFromKeyArray;
+	TArray<ATDGraphNode*> Path;
+	ATDGraphNode* Current;
+
 protected:
 	virtual void BeginPlay() override;
 };

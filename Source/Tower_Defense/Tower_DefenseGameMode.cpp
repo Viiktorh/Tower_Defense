@@ -43,7 +43,7 @@ void ATower_DefenseGameMode::Tick(float DeltaTime)
 			enemyLocation.X += randomDistance;
 			enemyLocation.Y += randomDistance;
 
-			AEnemy* enemy = world->SpawnActor<AEnemy>(EnemyBlueprint, enemyLocation, FRotator::ZeroRotator);
+			//AEnemy* enemy = world->SpawnActor<AEnemy>(EnemyBlueprint, enemyLocation, FRotator::ZeroRotator);
 		}
 	}
 
