@@ -5,9 +5,11 @@
 #include "GameFramework/Character.h"
 #include "Components/WidgetComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
+#include "TDGraphNodeManager.h"
 #include "Components/BoxComponent.h" 
 #include "Enemy.generated.h"
 
+class ATDGraphNodeManager;
 class ATDGraphNode;
 class UProjectileMovementComponent;
 class UStaticMeshComponent;
@@ -58,6 +60,9 @@ public:
 
     UPROPERTY()
     TArray<ATDGraphNodeManager*> AllNodes;
+
+    UPROPERTY(EditAnywhere,BlueprintReadWrite, Category = "PathCharacter")
+	ATDGraphNodeManager* GraphNodeManager;
 
     UPROPERTY(VisibleAnywhere, Category = "PathCharacter")
     int32 CurrentNodeIndex;

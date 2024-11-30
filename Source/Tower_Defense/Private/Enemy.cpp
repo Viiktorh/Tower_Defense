@@ -32,6 +32,19 @@ AEnemy::AEnemy()
 void AEnemy::BeginPlay()
 {
     Super::BeginPlay();
+    
+    if(GraphNodeManager != nullptr && !GraphNodeManager->StoredPath.IsEmpty())
+    {
+	    TArray<ATDGraphNode*> Path = GraphNodeManager->StoredPath;
+    	if (Path.Num() > 0)
+    	{
+    		SetPath(Path);
+    		StartMoving();
+    	}
+    }
+    
+
+   
 
     UUserWidget* UserWidget = HealthBarWidgetComponent->GetUserWidgetObject();
     UUEnemyHealthBar* EnemyHealthBar = Cast<UUEnemyHealthBar>(UserWidget);

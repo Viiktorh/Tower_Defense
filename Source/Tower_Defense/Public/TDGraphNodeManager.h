@@ -55,6 +55,7 @@ public:
 	TArray<ATDGraphNode*> CostSoFarKeyArray;
 	TArray<ATDGraphNode*> CameFromKeyArray;
 	TArray<ATDGraphNode*> Path;
+	TArray<ATDGraphNode*> StoredPath;
 	ATDGraphNode* Current;
 
 protected:

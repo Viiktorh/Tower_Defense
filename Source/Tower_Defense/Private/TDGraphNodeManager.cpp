@@ -18,16 +18,7 @@ ATDGraphNodeManager::ATDGraphNodeManager()
 void ATDGraphNodeManager::BeginPlay()
 {
     Super::BeginPlay();
-
-    if (Enemy)
-    {
-        Path = AStarSearch();
-        if (Path.Num() > 0)
-        {
-            Enemy->SetPath(Path);
-            Enemy->StartMoving();
-        }
-    }
+    AStarSearch();
 }
 
 TArray<ATDGraphNode*> ATDGraphNodeManager::FindShortestPath()
@@ -167,6 +158,7 @@ TArray<ATDGraphNode*> ATDGraphNodeManager::AStarSearch()
 	Path.Emplace(StartNode);
 	Algo::Reverse(Path);
 	GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Emerald, FString::Printf(TEXT("Got to the end of the Code")));
+    StoredPath = Path;
 	return Path;
 	//return ReconstructPath(StartNode, EndNode, CameFrom);
 }
