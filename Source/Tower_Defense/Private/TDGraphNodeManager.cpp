@@ -5,7 +5,6 @@
 #include "TDGraphNode.h"
 #include "Enemy.h"
 #include "TDPriorityQueue.h"
-#include "Microsoft/AllowMicrosoftPlatformTypes.h"
 
 // Sets default values
 ATDGraphNodeManager::ATDGraphNodeManager()
