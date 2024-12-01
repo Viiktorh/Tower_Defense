@@ -19,6 +19,10 @@ ATower_DefenseCharacter::ATower_DefenseCharacter()
     bUseControllerRotationYaw = false;
     bUseControllerRotationRoll = false;
 
+
+    bIsPlacingTower = false;
+    bIsPlacementOnCooldown=false;
+
     GetCharacterMovement()->bOrientRotationToMovement = true;
     GetCharacterMovement()->RotationRate = FRotator(0.0f, 500.0f, 0.0f);
     GetCharacterMovement()->JumpZVelocity = 700.f;
@@ -45,7 +49,7 @@ void ATower_DefenseCharacter::Tick(float DeltaTime)
 {
     Super::Tick(DeltaTime);
 
-    if (PreviewTower)
+    if (bIsPlacingTower && PreviewTower)
     {
         APlayerController* PlayerController = Cast<APlayerController>(GetController());
         if (PlayerController)
@@ -173,18 +177,49 @@ void ATower_DefenseCharacter::PushEnemy()
 //}
 }
 
+void ATower_DefenseCharacter::ResetPlacementCooldown()
+{
+    bIsPlacementOnCooldown = false;
+    bIsPlacingTower = false;
+}
+
 void ATower_DefenseCharacter::PlaceTower()
 {
-    if (!TowerBlueprint) return;
-
     APlayerController* PlayerController = Cast<APlayerController>(GetController());
     if (!PlayerController) return;
+
+    // If already in placement mode, exit placement mode
+    if (bIsPlacingTower)
+    {
+        // Cancel placement and reset the state
+        if (PreviewTower)
+        {
+            PreviewTower->Destroy();
+            PreviewTower = nullptr;
+        }
+
+        bIsPlacingTower = false;
+
+        // Reset input mode and cursor
+        PlayerController->bShowMouseCursor = false;
+        PlayerController->bEnableClickEvents = false;
+        PlayerController->bEnableMouseOverEvents = false;
+
+        FInputModeGameOnly InputMode;
+        PlayerController->SetInputMode(InputMode);
+
+        return;
+    }
+
+    // Start placement mode if not already in it
+    if (!TowerBlueprint) return;
 
     FVector CameraLocation;
     FRotator CameraRotation;
     PlayerController->GetPlayerViewPoint(CameraLocation, CameraRotation);
     FVector SpawnLocation = CameraLocation + CameraRotation.Vector() * 100.0f;
 
+    // Spawn the preview tower
     PreviewTower = GetWorld()->SpawnActor<ATower>(TowerBlueprint, SpawnLocation, FRotator::ZeroRotator);
 
     if (PreviewTower)
@@ -192,36 +227,95 @@ void ATower_DefenseCharacter::PlaceTower()
         PreviewTower->SetActorEnableCollision(false);
         PreviewTower->SetActorTickEnabled(false);
 
-        if (APlayerController* PC = Cast<APlayerController>(GetController()))
-        {
-            PC->bShowMouseCursor = true;
-            PC->bEnableClickEvents = true;
-            PC->bEnableMouseOverEvents = true;
-        }
+        bIsPlacingTower = true;
+
+        // Enable mouse cursor for placement view
+        PlayerController->bShowMouseCursor = true;
+        PlayerController->bEnableClickEvents = true;
+        PlayerController->bEnableMouseOverEvents = true;
+
+        FInputModeGameAndUI InputMode;
+        InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
+        PlayerController->SetInputMode(InputMode);
     }
 }
 
+
+
 void ATower_DefenseCharacter::FinalizeTowerPlacement()
-//**we are aware you can place the tower on yourself, we do not have valid locations checks currently**//
 {
+    // Always reset the placement state
+    if (!bIsPlacingTower)
+    {
+        // Ensure mouse cursor and input mode are reset
+        if (APlayerController* PC = Cast<APlayerController>(GetController()))
+        {
+            PC->bShowMouseCursor = false;
+            PC->bEnableClickEvents = false;
+            PC->bEnableMouseOverEvents = false;
+
+            FInputModeGameOnly InputMode;
+            PC->SetInputMode(InputMode);
+        }
+        return;
+    }
+
     if (PreviewTower)
     {
+        // Finalize the tower placement
         PreviewTower->SetActorEnableCollision(true);
         PreviewTower->SetActorTickEnabled(true);
         PlacedTowers.Add(PreviewTower);
         PreviewTower = nullptr;
+    }
+
+    // Reset placement mode
+    bIsPlacingTower = false;
+
+    if (APlayerController* PC = Cast<APlayerController>(GetController()))
+    {
+        PC->bShowMouseCursor = false;
+        PC->bEnableClickEvents = false;
+        PC->bEnableMouseOverEvents = false;
+
+        FInputModeGameOnly InputMode;
+        PC->SetInputMode(InputMode);
+    }
+}
+
+
+
+void ATower_DefenseCharacter::UndoTowerPlacement()
+{
+    // If we are on cooldown, do not undo the placement
+    if (bIsPlacementOnCooldown) return;
+
+    if (bIsPlacingTower && PreviewTower)
+    {
+        PreviewTower->Destroy();
+        PreviewTower = nullptr;
+        bIsPlacingTower = false;
 
         if (APlayerController* PC = Cast<APlayerController>(GetController()))
         {
             PC->bShowMouseCursor = false;
             PC->bEnableClickEvents = false;
             PC->bEnableMouseOverEvents = false;
-        }
-    }
-}
 
-void ATower_DefenseCharacter::UndoTowerPlacement()
-{
+            // Set input mode back to game only
+            FInputModeGameOnly InputMode;
+            PC->SetInputMode(InputMode);
+            PC->bShowMouseCursor = false;
+
+            // Re-enable input to the game viewport
+            FInputModeGameOnly GameMode;
+            PC->SetInputMode(GameMode);
+            PC->bShowMouseCursor = false;
+        }
+
+        return;
+    }
+
     if (PlacedTowers.Num() > 0)
     {
         ATower* LastTower = PlacedTowers.Pop();
@@ -231,6 +325,7 @@ void ATower_DefenseCharacter::UndoTowerPlacement()
         }
     }
 }
+
 void ATower_DefenseCharacter::MoveForward(float Value)
 {
     if ((Controller != NULL) && (Value != 0.0f))
