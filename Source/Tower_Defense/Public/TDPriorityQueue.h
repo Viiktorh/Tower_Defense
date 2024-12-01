@@ -1,15 +1,13 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+
+
+//This code was taken from github.com/SomethingWithComputers
+//It is a Binary Heap wrapper for UE's TArray
+//https://gist.github.com/SomethingWithComputers/48e32b281d1bf8e662412e4113df43dc
 
 #pragma once
 
-#include <ranges>
-#include <ranges>
-
 #include "CoreMinimal.h"
 
-/**
- * 
- */
 
     template <typename InElementType>
     struct TPriorityQueueNode {

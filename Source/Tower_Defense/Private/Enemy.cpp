@@ -32,7 +32,8 @@ AEnemy::AEnemy()
 void AEnemy::BeginPlay()
 {
     Super::BeginPlay();
-    
+
+    //Check for a Stored Path instead of Asking the GraphManager to Calculate it on spawn
     if(GraphNodeManager != nullptr && !GraphNodeManager->StoredPath.IsEmpty())
     {
 	    TArray<ATDGraphNode*> Path = GraphNodeManager->StoredPath;
@@ -79,11 +80,6 @@ void AEnemy::Tick(float DeltaTime)
     }
 }
 
-void AEnemy::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
-{
-    ApplyDamage(10);
-}
-
 void AEnemy::SetPath(const TArray<ATDGraphNode*> NewPath)
 {
     PathNodes = NewPath;
@@ -93,6 +89,20 @@ void AEnemy::SetPath(const TArray<ATDGraphNode*> NewPath)
 void AEnemy::StartMoving()
 {
     bIsMoving = true;
+}
+
+void AEnemy::MoveTowardsTarget(AActor* Target)
+{
+    if (Target)
+    {
+        FVector Direction = (Target->GetActorLocation() - GetActorLocation()).GetSafeNormal();
+        SetActorLocation(GetActorLocation() + (Direction * MoveSpeed * GetWorld()->GetDeltaSeconds()));
+    }
+}
+
+void AEnemy::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
+{
+    ApplyDamage(10);
 }
 
 void AEnemy::ApplyDamage(int Damage)
@@ -118,11 +128,3 @@ void AEnemy::DestroyEnemy()
     Destroy();
 }
 
-void AEnemy::MoveTowardsTarget(AActor* Target)
-{
-    if (Target)
-    {
-        FVector Direction = (Target->GetActorLocation() - GetActorLocation()).GetSafeNormal();
-        SetActorLocation(GetActorLocation() + (Direction * MoveSpeed * GetWorld()->GetDeltaSeconds()));
-    }
-}

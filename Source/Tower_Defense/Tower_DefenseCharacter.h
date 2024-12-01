@@ -104,6 +104,21 @@ protected:
     /** Stack to store placed towers */
     TArray<ATower*> PlacedTowers;
 
+    /** Indicates if the player is in tower placement mode */
+    bool bIsPlacingTower;
+
+    /** Timer to manage tower placement cooldown */
+    float TowerPlacementCooldownTime = 0.2f; // Cooldown in seconds
+
+    /** Flag to check if placement is on cooldown */
+    bool bIsPlacementOnCooldown;
+
+    /** Reset cooldown for tower placement */
+    void ResetPlacementCooldown();
+
+    /** Handle to manage cooldown timer */
+    FTimerHandle TowerPlacementCooldownHandle;
+
 protected:
     virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
     virtual void BeginPlay();

@@ -9,7 +9,7 @@
 // Sets default values
 ATDGraphNodeManager::ATDGraphNodeManager()
 {
-    // Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+
     PrimaryActorTick.bCanEverTick = false;
 
 }
@@ -20,8 +20,9 @@ void ATDGraphNodeManager::BeginPlay()
     AStarSearch();
 }
 
-TArray<ATDGraphNode*> ATDGraphNodeManager::FindShortestPath()
+TArray<ATDGraphNode*> ATDGraphNodeManager::BreadthFirstSearch()
 {
+    TArray<ATDGraphNode*> Path;
     if (!StartNode || !EndNode)
     {
         return Path;
@@ -38,6 +39,8 @@ TArray<ATDGraphNode*> ATDGraphNodeManager::FindShortestPath()
         ATDGraphNode* CurrentNode;
         Queue.Dequeue(CurrentNode);
 
+        //Once CurrentNode has found the EndNode, Add Nodes to the Path Array at index 0,
+        //starting with the EndNode and using the Visited Map as a guide backwards towards the StartNode until we run out of nodes. 
         if (CurrentNode == EndNode)
         {
             ATDGraphNode* Node = EndNode;
@@ -60,70 +63,53 @@ TArray<ATDGraphNode*> ATDGraphNodeManager::FindShortestPath()
             }
         }
     }
-
     return Path;
 }
 
 double ATDGraphNodeManager::Heuristic(ATDGraphNode* StartNodeLocation,ATDGraphNode* EndNodeLocation)
 {
-    double Heuristic = StartNodeLocation->GetActorLocation().X - EndNodeLocation->GetActorLocation().X + StartNodeLocation->GetActorLocation().Y - EndNodeLocation->GetActorLocation().Y;
+    double Heuristic =   StartNodeLocation->GetActorLocation().X - EndNodeLocation->GetActorLocation().X
+					   + StartNodeLocation->GetActorLocation().Y - EndNodeLocation->GetActorLocation().Y;
     return abs(Heuristic);
-    /*double VectorLength = StartNodeLocation->GetDistanceTo(EndNodeLocation);
-	return (VectorLength);*/
 }
 
 
 TArray<ATDGraphNode*> ATDGraphNodeManager::AStarSearch()
 {
-
-	//TMap<ATDGraphNode*, ATDGraphNode*> CameFrom;
-	//TMap<ATDGraphNode*, double> CostSoFar;
- //   TArray<ATDGraphNode*> CostSoFarKeyArray;
- //   TArray<ATDGraphNode*> CameFromKeyArray;
- //   TArray<ATDGraphNode*> Path;
- //   ATDGraphNode* Current;
- //   double NewCost;
+	TMap<ATDGraphNode*, ATDGraphNode*> CameFrom;
+	TMap<ATDGraphNode*, double> CostSoFar;
+    TArray<ATDGraphNode*> CameFromKeyArray;
+    TArray<ATDGraphNode*> Path;
+    ATDGraphNode* Current = nullptr;
+    //TPriorityQueue is not a Standard Unreal Class. See TDPriorityQueue.h
+    TPriorityQueue<ATDGraphNode*> Frontier;
     
 
     if (!StartNode || !EndNode)
     {
         return Path;
     }
-    TMap<ATDGraphNode*, ATDGraphNode*> Visited;
-    Visited.Add(StartNode, nullptr);
-
-    TPriorityQueue<ATDGraphNode*> Frontier;
 	Frontier.Push(StartNode, 0);
-
 
     CameFrom.FindOrAdd(StartNode) = StartNode;
     CostSoFar.FindOrAdd(StartNode) = 0;
 
-    GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Emerald, FString::Printf(TEXT("Checking Frontier...")));
     while (!Frontier.IsEmpty())
     {
         Current = Frontier.Pop();
-        GEngine->AddOnScreenDebugMessage(-1, 6.f, FColor::Emerald, FString::Printf(TEXT("Frontier Is not Empty")));
         if (Current == EndNode)
         {
-            GEngine->AddOnScreenDebugMessage(-1, 7.f, FColor::Yellow, FString::Printf(TEXT("Current Node is EndNode")));
             break;
         }
 		
         //Find the Path
-        //TODO: Add A Visited-Check so Next does not revisit its own node. 
-		
         for (TObjectPtr<ATDGraphNode> Next : Current->Neighbors)
         {
-        	GEngine->AddOnScreenDebugMessage(-1, 8.f, FColor::Emerald, FString::Printf(TEXT("Finding Path...")));
         	double NewCost = CostSoFar.FindOrAdd(Current) + Current->CostToNeighbors.FindRef(Next);
-            
-            CostSoFar.GenerateKeyArray(CostSoFarKeyArray);
+
             if ((!CostSoFar.Contains(Next) || NewCost < CostSoFar.FindOrAdd(Next)) 
-                && !Visited.Contains(Next))
+                && !CameFrom.Contains(Next))
             {
-            	Visited.Add(Next, Current);
-                GEngine->AddOnScreenDebugMessage(-1, 8.f, FColor::Yellow, FString::Printf(TEXT("Adding Costs...")));
                 CostSoFar.FindOrAdd(Next) = NewCost;
                 // Get Priority for next node
                 double Priority = NewCost + Heuristic(Next, EndNode);
@@ -132,6 +118,7 @@ TArray<ATDGraphNode*> ATDGraphNodeManager::AStarSearch()
                 Frontier.Push(Next, Priority);
                 CameFrom.FindOrAdd(Next) = Current;
 
+                //Draw A red line for every node that has been searched. 
                 DrawDebugLine(GetWorld(), Next->GetActorLocation(), Current->GetActorLocation(), FColor::Red, true, -1.0f, 2, 5.0f);
             }
         	
@@ -141,35 +128,33 @@ TArray<ATDGraphNode*> ATDGraphNodeManager::AStarSearch()
 	CameFrom.GenerateKeyArray(CameFromKeyArray);
 	if (CameFrom.FindRef(EndNode) != CameFrom.FindRef(CameFromKeyArray.Last()))
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 11.f, FColor::Blue, FString::Printf(TEXT("Could Not Find Any Path"))); //No path can be found 
-       
+		GEngine->AddOnScreenDebugMessage(-1, 11.f, FColor::Blue, FString::Printf(TEXT("Could Not Find Any Path")));
+		//No path can be found 
 	}
+
+    /*
+     * Reconstruct the Path
+     */
+	// Retrace the path and put nodes into an Array,
 	while (Current != StartNode)
 	{
-		//test this
-		GEngine->AddOnScreenDebugMessage(-1, 11.f, FColor::Red, FString::Printf(TEXT("Adding New Elements to Path")));
 		Path.Emplace(Current);
 		Current = CameFrom.FindOrAdd(Current);
 	}
 	    
     
-	//// Retrace the path and put into an Array
+    // Start Node does not get added to the Path in the Algorithm and needs to be emplaced manually. 
+	// The path is initially the reverse order and has to be reversed again to make it correct.
+    // Store the Path for later so you do not have to recalculate the path for every single enemy that is spawned. 
 	Path.Emplace(StartNode);
 	Algo::Reverse(Path);
-	GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Emerald, FString::Printf(TEXT("Got to the end of the Code")));
     StoredPath = Path;
 	return Path;
-	//return ReconstructPath(StartNode, EndNode, CameFrom);
+	/*
+	 * End of Path Reconstruction
+	 */
 }
-//
-//TArray<ATDGraphNode*> ATDGraphNodeManager::ReconstructPath(ATDGraphNode* Start, ATDGraphNode* Goal,
-//	TMap<ATDGraphNode*, ATDGraphNode*> CameFrom)
-//{
-//	GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Emerald, FString::Printf(TEXT("Attempting to Retrace Path")));
-//    TArray<ATDGraphNode*> Path;
-//    ATDGraphNode* CurrentNode = Goal;
-//
-//}
+
 
 
 

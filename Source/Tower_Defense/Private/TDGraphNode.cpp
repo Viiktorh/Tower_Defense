@@ -23,7 +23,7 @@ void ATDGraphNode::BeginPlay()
 	{
 		if (Neighbor)
 		{
-			DrawDebugLine(
+			DrawDebugLine( 
 				GetWorld(),
 				GetActorLocation(),
 				Neighbor->GetActorLocation(),

@@ -57,9 +57,6 @@ public:
     UPROPERTY()
     TArray<ATDGraphNode*> PathNodes;
 
-    UPROPERTY()
-    TArray<ATDGraphNodeManager*> AllNodes;
-
     UPROPERTY(EditAnywhere,BlueprintReadWrite, Category = "PathCharacter")
 	ATDGraphNodeManager* GraphNodeManager;
 
