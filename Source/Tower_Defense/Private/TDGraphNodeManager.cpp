@@ -40,6 +40,8 @@ TArray<ATDGraphNode*> ATDGraphNodeManager::BreadthFirstSearch()
         ATDGraphNode* CurrentNode;
         Queue.Dequeue(CurrentNode);
 
+        //Once CurrentNode has found the EndNode, Add Nodes to the Path Array at index 0,
+        //starting with the EndNode and using the Visited Map as a guide backwards towards the StartNode until we run out of nodes. 
         if (CurrentNode == EndNode)
         {
             ATDGraphNode* Node = EndNode;
@@ -67,21 +69,20 @@ TArray<ATDGraphNode*> ATDGraphNodeManager::BreadthFirstSearch()
 
 double ATDGraphNodeManager::Heuristic(ATDGraphNode* StartNodeLocation,ATDGraphNode* EndNodeLocation)
 {
-    double Heuristic = StartNodeLocation->GetActorLocation().X - EndNodeLocation->GetActorLocation().X + StartNodeLocation->GetActorLocation().Y - EndNodeLocation->GetActorLocation().Y;
+    double Heuristic =   StartNodeLocation->GetActorLocation().X - EndNodeLocation->GetActorLocation().X
+					   + StartNodeLocation->GetActorLocation().Y - EndNodeLocation->GetActorLocation().Y;
     return abs(Heuristic);
 }
 
 
 TArray<ATDGraphNode*> ATDGraphNodeManager::AStarSearch()
 {
-
 	TMap<ATDGraphNode*, ATDGraphNode*> CameFrom;
 	TMap<ATDGraphNode*, double> CostSoFar;
-    TMap<ATDGraphNode*, ATDGraphNode*> Visited;
     TArray<ATDGraphNode*> CameFromKeyArray;
     TArray<ATDGraphNode*> Path;
     ATDGraphNode* Current = nullptr;
-    //TPriorityQueue is not a Standard Unreal Function. See TDPriorityQueue.h
+    //TPriorityQueue is not a Standard Unreal Class. See TDPriorityQueue.h
     TPriorityQueue<ATDGraphNode*> Frontier;
     
 
@@ -89,7 +90,6 @@ TArray<ATDGraphNode*> ATDGraphNodeManager::AStarSearch()
     {
         return Path;
     }
-    Visited.Add(StartNode, nullptr);
 	Frontier.Push(StartNode, 0);
 
     CameFrom.FindOrAdd(StartNode) = StartNode;
@@ -109,9 +109,8 @@ TArray<ATDGraphNode*> ATDGraphNodeManager::AStarSearch()
         	double NewCost = CostSoFar.FindOrAdd(Current) + Current->CostToNeighbors.FindRef(Next);
 
             if ((!CostSoFar.Contains(Next) || NewCost < CostSoFar.FindOrAdd(Next)) 
-                && !Visited.Contains(Next))
+                && !CameFrom.Contains(Next))
             {
-            	Visited.Add(Next, Current);
                 CostSoFar.FindOrAdd(Next) = NewCost;
                 // Get Priority for next node
                 double Priority = NewCost + Heuristic(Next, EndNode);
@@ -130,7 +129,8 @@ TArray<ATDGraphNode*> ATDGraphNodeManager::AStarSearch()
 	CameFrom.GenerateKeyArray(CameFromKeyArray);
 	if (CameFrom.FindRef(EndNode) != CameFrom.FindRef(CameFromKeyArray.Last()))
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 11.f, FColor::Blue, FString::Printf(TEXT("Could Not Find Any Path"))); //No path can be found 
+		GEngine->AddOnScreenDebugMessage(-1, 11.f, FColor::Blue, FString::Printf(TEXT("Could Not Find Any Path")));
+		//No path can be found 
 	}
 
     /*
