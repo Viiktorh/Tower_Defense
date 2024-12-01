@@ -22,25 +22,17 @@ public:
 	ATDGraphNodeManager();
 
 	UFUNCTION(BlueprintCallable, Category = "GraphManager")
-	TArray<ATDGraphNode*> FindShortestPath();
+	TArray<ATDGraphNode*> BreadthFirstSearch();
 
 
 	UFUNCTION(BlueprintCallable, Category = "GraphManager")
 	TArray<ATDGraphNode*> AStarSearch();
 
-	TArray<ATDGraphNode*> ReconstructPath(ATDGraphNode* Start, ATDGraphNode* Goal, TMap<ATDGraphNode*, ATDGraphNode*> CameFrom);
+	double Heuristic(ATDGraphNode* StartNodeLocation, ATDGraphNode* EndNodeLocation);
 
 	/*
 	 * Variables
 	 */
-	double Heuristic(ATDGraphNode* StartNodeLocation, ATDGraphNode* EndNodeLocation);
-
-	//FVector StartNodeLocation;
-	//FVector EndNodeLocation;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "GraphManager")
-	TArray<ATDGraphNode*> AllNodes;
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "GraphManager")
 	ATDGraphNode* StartNode;
 
@@ -50,13 +42,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "GraphManager")
 	AEnemy* Enemy;
 
-	TMap<ATDGraphNode*, ATDGraphNode*> CameFrom;
-	TMap<ATDGraphNode*, double> CostSoFar;
-	TArray<ATDGraphNode*> CostSoFarKeyArray;
-	TArray<ATDGraphNode*> CameFromKeyArray;
-	TArray<ATDGraphNode*> Path;
 	TArray<ATDGraphNode*> StoredPath;
-	ATDGraphNode* Current;
 
 protected:
 	virtual void BeginPlay() override;
